@@ -1,5 +1,5 @@
 //Author: Vlasios Vasileiou <vlasisva@gmail.com>
-// $Header$
+//$Header$
 #include "BackgroundEstimator/GANGSTER.h"
 #include "TGraph.h"
 #include "TPaveText.h"
@@ -14,8 +14,9 @@
 #include <vector>
 
 //if Energy_Min_user,Energy_Max_user,Energy_Bins_user<=0 then the default values will be used
-string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATION, string FT1_FILE, string FT2_FILE, string DATACLASS, double Energy_Min_user, double Energy_Max_user, int Energy_Bins_user,  float FT1ZenithTheta_Cut, bool OverwritePlots, int verbosity){
-
+string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATION, string FT1_FILE, string FT2_FILE, string DATACLASS, double Energy_Min_user, double Energy_Max_user, int Energy_Bins_user,  float FT1ZenithTheta_Cut, bool OverwritePlots, int verbosity, double MET_FOR_THETA){
+ if (MET_FOR_THETA<=0) MET_FOR_THETA=MET;
+ 
  bool OverwriteResults=false;
 
  bool WasBatch=gROOT->IsBatch();
@@ -139,7 +140,7 @@ string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATIO
               if (CALCULATE_ROI==1) {
                  char PlotsFile[1000];
                  sprintf(PlotsFile,"%s/Burst_Plots.root",GRB_DIR);
-                 TOOLS::CalculatePSF(hROI[iEst],MET,FT2_FILE,DATACLASS);
+                 TOOLS::CalculatePSF(hROI[iEst],MET_FOR_THETA,FT2_FILE,DATACLASS);
                  if (hROI[iEst]->GetBinContent(1)<0) { BkgOK=false; break;} 
               }
 	      for (int ib=1;ib<=Energy_Bins_user;ib++) {
@@ -158,10 +159,10 @@ string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATIO
           if (CALCULATE_ROI==1) {
               char PlotsFile[1000];
               sprintf(PlotsFile,"%s/Burst_Plots.root",GRB_DIR);
-              TOOLS::CalculatePSF(hROI[iEst],MET,FT2_FILE,DATACLASS);
+              TOOLS::CalculatePSF(hROI[iEst],MET_FOR_THETA,FT2_FILE,DATACLASS);
           }
           if (hROI[iEst]->GetBinContent(1)<0) { BkgOK=false; break;}
-          if (Est[iEst]->FillBackgroundHist(GRB_DIR, hROI[iEst],RA,DEC,2,3,verbosity)) {BkgOK=false; break; }//both
+          if (Est[iEst]->FillBackgroundHist(GRB_DIR, hROI[iEst],RA,DEC,3,verbosity)) {BkgOK=false; break; }//both
        }
 
        if (ftemp) fclose(ftemp);
@@ -236,7 +237,7 @@ string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATIO
               if (CALCULATE_ROI==1) {
                  char PlotsFile[1000];
                  sprintf(PlotsFile,"%s/Burst_Plots.root",GRB_DIR);
-                 TOOLS::CalculatePSF(hROI[iEst],MET,FT2_FILE,DATACLASS);
+                 TOOLS::CalculatePSF(hROI[iEst],MET_FOR_THETA,FT2_FILE,DATACLASS);
               }
 	      for (int ib=1;ib<=Energy_Bins_user;ib++) {
 		    if (fabs(hROI[iEst]->GetBinContent(ib)-hexp->GetBinContent(ib))>0.0001) ProcessFile=true;
@@ -259,7 +260,7 @@ string GANGSTER::PlotBackground(string Interval_name, double MET, double DURATIO
 	    OverwriteResults=true;
             //Check if we have to make a listfile
             if (FT1_FILE[0]=='^') FT1_FILE="@"+string(GRB_DIR)+"/fitslist.txt";
-            TOOLS::Make_Burst_Plots(DATACLASS, FT1_FILE, GRB_DIR,FT1ZenithTheta_Cut,RA,DEC,2,MET,DURATION,hROIEst[iEst],0);
+            TOOLS::Make_Burst_Plots(DATACLASS, FT1_FILE, GRB_DIR,FT1ZenithTheta_Cut,RA,DEC,MET,DURATION,hROIEst[iEst],0);
        }
        if (ftemp) fclose (ftemp);
 
