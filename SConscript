@@ -16,7 +16,7 @@ libEnv.Tool('BackgroundEstimatorLib', depsOnly=1)
 
 BackgroundEstimatorCint = libEnv.Rootcint('BackgroundEstimator/BackgroundEstimator_rootcint.cxx',
                                           cintSources,
-                                          includes = ['.', 'src'])
+                                          includes = ['.', 'src','../include'])
 # includes = ['.', 'src', 'include'])
 
 libEnv['rootcint_node'] = BackgroundEstimatorCint
